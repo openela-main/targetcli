@@ -1,0 +1,55 @@
+From 3176671662bda79d4b4059b8cc22b4b31a6547e0 Mon Sep 17 00:00:00 2001
+From: Maurizio Lombardi <mlombard@redhat.com>
+Date: Fri, 13 Nov 2020 11:44:40 +0100
+Subject: [PATCH] fileio backstore: fix sparse file creation
+
+fallocate() can't be used to create sparse files because it
+actually preallocates all the disk space that will be used by the file
+backstore, sparse files do not have preallocated disk space
+by definition.
+We must therefore use ftruncate().
+
+We can, on the other hand, use fallocate() to create non-sparse
+files and fall back to the slower "while() fwrite()" if we
+are running on Python version < 3.3 where fallocate() is not available
+
+Fixes 3bd4d8ef7c9b154c53e8b8dd863a570bce7f5c2c
+
+Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
+---
+ targetcli/ui_backstore.py | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/targetcli/ui_backstore.py b/targetcli/ui_backstore.py
+index 8692f22..9bc0c58 100644
+--- a/targetcli/ui_backstore.py
++++ b/targetcli/ui_backstore.py
+@@ -423,17 +423,17 @@ class UIFileIOBackstore(UIBackstore):
+             raise ExecutionError("Could not open %s" % filename)
+         try:
+             if sparse:
++                os.ftruncate(f.fileno(), size)
++            else:
++                self.shell.log.info("Writing %d bytes" % size)
+                 try:
++                    # Prior to version 3.3, Python does not provide fallocate
+                     os.posix_fallocate(f.fileno(), 0, size)
+                 except AttributeError:
+-                    # Prior to version 3.3, Python does not provide fallocate
+-                    os.ftruncate(f.fileno(), size)
+-            else:
+-                self.shell.log.info("Writing %d bytes" % size)
+-                while size > 0:
+-                    write_size = min(size, 1024)
+-                    f.write("\0" * write_size)
+-                    size -= write_size
++                    while size > 0:
++                        write_size = min(size, 1024)
++                        f.write("\0" * write_size)
++                        size -= write_size
+         except (OSError, IOError):
+             os.remove(filename)
+             raise ExecutionError("Could not expand file to %d bytes" % size)
+-- 
+2.28.0
+
