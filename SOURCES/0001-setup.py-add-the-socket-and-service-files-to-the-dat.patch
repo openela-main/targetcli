@@ -1,0 +1,13 @@
+diff --git a/setup.py b/setup.py
+index 4518165..2ebfc04 100755
+--- a/setup.py
++++ b/setup.py
+@@ -34,7 +34,7 @@ setup(
+                'scripts/targetcli',
+                'daemon/targetclid'
+               ],
+-    data_files = [('/lib/systemd/system', ['systemd/targetclid.socket', 'systemd/targetclid.service'])],
++    data_files = [('/usr/lib/systemd/system', ['systemd/targetclid.socket', 'systemd/targetclid.service'])],
+     classifiers = [
+         "Programming Language :: Python",
+         "Programming Language :: Python :: 3",
