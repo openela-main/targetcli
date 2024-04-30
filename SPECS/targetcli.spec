@@ -3,18 +3,17 @@
 Name:           targetcli
 License:        ASL 2.0
 Summary:        An administration shell for storage targets
-Version:        2.1.53
-Release:        7%{?dist}
+Version:        2.1.57
+Release:        2%{?dist}
 URL:            https://github.com/open-iscsi/%{oname}
 Source:         %{url}/archive/v%{version}/%{oname}-%{version}.tar.gz
 # Proposed upstream
 ## From: https://github.com/open-iscsi/targetcli-fb/pull/176
-Patch1:         Do-not-install-systemd-files-in-setup.py.patch
 BuildArch:      noarch
 BuildRequires:  python3-devel, python3-setuptools, systemd-rpm-macros
 Requires:       python3-rtslib, target-restore, python3-configshell, python3-six, python3-dbus
 Requires:       python3-gobject-base
-
+Patch0:         0001-Fix-mapping-the-new-LUN-to-the-node-ACL.patch
 
 %description
 An administration shell for configuring iSCSI, FCoE, and other
@@ -24,7 +23,7 @@ users will also need to install and use fcoe-utils.
 
 %prep
 %setup -q -n %{oname}-%{version}
-%patch1 -p1
+%patch0 -p1
 
 %build
 %py3_build
@@ -49,6 +48,12 @@ install -m 644 systemd/* %{buildroot}%{_unitdir}/
 %dir %{_sysconfdir}/target/backup
 
 %changelog
+* Tue Jan 30 2024 Maurizio Lombardi <mlombard@redhat.com> - 2.1.57-2
+- Fix a regression in LUN creation and ACL mapping Jira: RHEL-23294
+
+* Mon Oct 30 2023 Maurizio Lombardi <mlombard@redhat.com> - 2.1.57-1
+- Update to the latest version
+
 * Tue Aug 10 2021 Mohan Boddu <mboddu@redhat.com> - 2.1.53-7
 - Rebuilt for IMA sigs, glibc 2.34, aarch64 flags
   Related: rhbz#1991688
