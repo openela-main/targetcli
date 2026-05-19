@@ -4,7 +4,7 @@ Name:           targetcli
 License:        ASL 2.0
 Summary:        An administration shell for storage targets
 Version:        2.1.57
-Release:        2%{?dist}
+Release:        3%{?dist}
 URL:            https://github.com/open-iscsi/%{oname}
 Source:         %{url}/archive/v%{version}/%{oname}-%{version}.tar.gz
 # Proposed upstream
@@ -14,6 +14,7 @@ BuildRequires:  python3-devel, python3-setuptools, systemd-rpm-macros
 Requires:       python3-rtslib, target-restore, python3-configshell, python3-six, python3-dbus
 Requires:       python3-gobject-base
 Patch0:         0001-Fix-mapping-the-new-LUN-to-the-node-ACL.patch
+Patch1:         0002-restoreconfig-do-not-return-success.patch
 
 %description
 An administration shell for configuring iSCSI, FCoE, and other
@@ -24,6 +25,7 @@ users will also need to install and use fcoe-utils.
 %prep
 %setup -q -n %{oname}-%{version}
 %patch0 -p1
+%patch1 -p1
 
 %build
 %py3_build
@@ -48,6 +50,9 @@ install -m 644 systemd/* %{buildroot}%{_unitdir}/
 %dir %{_sysconfdir}/target/backup
 
 %changelog
+* Wed Dec 10 2025 Maurizio Lombardi <mlombard@redhat.com> - 2.1.57-3
+- restoreconfig: Do not return success if the file doesn't exist
+
 * Tue Jan 30 2024 Maurizio Lombardi <mlombard@redhat.com> - 2.1.57-2
 - Fix a regression in LUN creation and ACL mapping Jira: RHEL-23294
 
