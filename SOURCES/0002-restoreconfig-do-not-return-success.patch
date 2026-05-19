@@ -1,0 +1,14 @@
+diff --git a/targetcli/ui_root.py b/targetcli/ui_root.py
+index 79ee985..2dd6614 100644
+--- a/targetcli/ui_root.py
++++ b/targetcli/ui_root.py
+@@ -207,8 +207,7 @@ class UIRoot(UINode):
+         savefile = os.path.expanduser(savefile)
+ 
+         if not os.path.isfile(savefile):
+-            self.shell.log.info("Restore file %s not found" % savefile)
+-            return
++            raise ExecutionError(f"Restore file {savefile} not found")
+ 
+         target = self.ui_eval_param(target, 'string', None)
+         storage_object = self.ui_eval_param(storage_object, 'string', None)
